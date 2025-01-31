@@ -1,0 +1,72 @@
+CREATE OR REPLACE FUNCTION get_stat_player(id_pl integer) RETURNS SETOF Stat_Player AS $$
+BEGIN
+	RETURN QUERY
+	SELECT * FROM Stat_Player WHERE id_player = id_pl;   
+END;
+$$ LANGUAGE plpgsql; 
+
+select get_stat_player(1);
+
+CREATE OR REPLACE FUNCTION get_stat_match(id_st integer) RETURNS SETOF Stat_Match AS $$
+BEGIN
+	RETURN QUERY
+	SELECT * FROM Stat_Match WHERE id = id_st;   
+END;
+$$ LANGUAGE plpgsql; 
+
+select get_stat_match(1);
+
+CREATE OR REPLACE FUNCTION get_stat_match_team(id_st integer, id_tm integer) RETURNS SETOF Stat_Match_Team AS $$
+BEGIN
+	RETURN QUERY
+	SELECT * FROM Stat_Match_Team WHERE id_team = id_tm AND id_stat_match = id_st;   
+END;
+$$ LANGUAGE plpgsql; 
+
+select get_stat_match_team(1, 1);
+
+CREATE OR REPLACE FUNCTION get_stat_match_player(id_st integer, id_pl integer) RETURNS SETOF Stat_Player_Match AS $$
+BEGIN
+	RETURN QUERY
+	SELECT * FROM Stat_Player_Match WHERE id_player = id_pl AND id_stat_match = id_st;   
+END;
+$$ LANGUAGE plpgsql; 
+
+select get_stat_match_player(1, 1);
+
+CREATE OR REPLACE FUNCTION get_stat_team_season(id_st integer) RETURNS SETOF Stat_Team_Season AS $$
+BEGIN
+	RETURN QUERY
+	SELECT * FROM Stat_Team_Season WHERE id = id_st;   
+END;
+$$ LANGUAGE plpgsql; 
+
+select get_stat_team_season(1);
+
+CREATE OR REPLACE FUNCTION get_stat_match_future(id_st integer) RETURNS SETOF Stat_Match_Future AS $$
+BEGIN
+	RETURN QUERY
+	SELECT * FROM Stat_Match_Future WHERE id = id_st;   
+END;
+$$ LANGUAGE plpgsql; 
+
+select get_stat_match_future(1);
+
+CREATE OR REPLACE FUNCTION get_stat_match_team_future(id_st integer, id_tm integer) RETURNS SETOF Stat_Team_Future AS $$
+BEGIN
+	RETURN QUERY
+	SELECT * FROM Stat_Team_Future WHERE id_team = id_tm AND id_stat_match = id_st;   
+END;
+$$ LANGUAGE plpgsql; 
+
+select get_stat_match_team_future(1, 1);
+
+CREATE OR REPLACE FUNCTION get_stat_match_player_future(id_st integer, id_pl integer) RETURNS SETOF Stat_Player_Future AS $$
+BEGIN
+	RETURN QUERY
+	SELECT * FROM Stat_Player_Future WHERE id_player = id_pl AND id_stat_match = id_st;   
+END;
+$$ LANGUAGE plpgsql; 
+
+select get_stat_match_player_future(1, 1);
+

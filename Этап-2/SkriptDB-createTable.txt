@@ -1,0 +1,199 @@
+DROP TABLE IF EXISTS Stat_Player_Match CASCADE;
+DROP TABLE IF EXISTS Stat_Player CASCADE;
+DROP TABLE IF EXISTS Stat_Match_Team CASCADE;
+DROP TABLE IF EXISTS Stat_Team_Future CASCADE;
+DROP TABLE IF EXISTS Stat_Player_Future CASCADE;
+DROP TABLE IF EXISTS Match_Future CASCADE;
+DROP TABLE IF EXISTS Stat_Match_Future CASCADE;
+DROP TABLE IF EXISTS Team CASCADE;
+DROP TABLE IF EXISTS Stat_Team_Season CASCADE;
+DROP TABLE IF EXISTS Match CASCADE;
+DROP TABLE IF EXISTS Stat_Match CASCADE;
+DROP TABLE IF EXISTS Player CASCADE;
+
+CREATE TABLE Stat_Team_Season (
+    id SERIAL PRIMARY KEY,
+    GP DECIMAL NOT NULL,
+    WIN_percentage DECIMAL NOT NULL CHECK(WIN_percentage <= 100),
+    PTS DECIMAL NOT NULL,
+    ThreeP_percentage DECIMAL NOT NULL CHECK(ThreeP_percentage <= 100),
+    FT_percentage DECIMAL NOT NULL CHECK(FT_percentage <= 100),
+    REB DECIMAL NOT NULL,
+    AST DECIMAL NOT NULL,
+    TOV DECIMAL NOT NULL,
+    STL DECIMAL NOT NULL,
+    BLK DECIMAL NOT NULL
+);
+
+CREATE TABLE Team (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    id_stat INTEGER REFERENCES Stat_Team_Season(id)
+);
+
+CREATE TABLE Player (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    position TEXT NOT NULL,
+    number INTEGER NOT NULL CHECK(number < 100),
+    height DECIMAL NOT NULL,
+    weight DECIMAL NOT NULL,
+    team_id INTEGER REFERENCES Team(id)
+);
+
+CREATE TABLE Stat_Match (
+    id SERIAL PRIMARY KEY,
+    winner_name TEXT NOT NULL,
+    times_tied INTEGER NOT NULL,
+    longest_run INTEGER NOT NULL,
+    lead_changes INTEGER NOT NULL
+);
+
+CREATE TABLE Match (
+    id SERIAL PRIMARY KEY,
+    location TEXT,
+	date DATE NOT NULL,
+    id_stat INTEGER REFERENCES Stat_Match(id),
+    id_team_1 INTEGER REFERENCES Team(id),
+    id_team_2 INTEGER REFERENCES Team(id)
+);
+
+CREATE TABLE Stat_Match_Future (
+    id SERIAL PRIMARY KEY,
+    winner_name TEXT NOT NULL,
+    times_tied INTEGER NOT NULL,
+    longest_run INTEGER NOT NULL,
+    lead_changes INTEGER NOT NULL
+);
+
+CREATE TABLE Match_Future (
+    id SERIAL PRIMARY KEY,
+    location TEXT,
+	date DATE NOT NULL,
+    id_stat INTEGER REFERENCES Stat_Match_Future(id),
+    id_team_1 INTEGER REFERENCES Team(id),
+    id_team_2 INTEGER REFERENCES Team(id)
+);
+
+CREATE TABLE Stat_Player (
+    id SERIAL PRIMARY KEY,
+    MIN DECIMAL NOT NULL,
+    PTS DECIMAL NOT NULL,
+    FG_percentage DECIMAL NOT NULL CHECK (FG_percentage <= 100),
+    ThreeP_percentage DECIMAL NOT NULL CHECK (ThreeP_percentage <= 100),
+    FT_percentage DECIMAL NOT NULL CHECK (FT_percentage <= 100),
+    REB DECIMAL NOT NULL,
+    AST DECIMAL NOT NULL,
+    TOV DECIMAL NOT NULL,
+    STL DECIMAL NOT NULL,
+    BLK DECIMAL NOT NULL,
+    id_player INTEGER REFERENCES Player(id)
+);
+
+
+CREATE TABLE Stat_Player_Match (
+    id SERIAL PRIMARY KEY,
+    MIN DECIMAL NOT NULL,
+    PTS DECIMAL NOT NULL,
+    FG_percentage DECIMAL NOT NULL CHECK (FG_percentage <= 100),
+    ThreeP_percentage DECIMAL NOT NULL CHECK (ThreeP_percentage <= 100),
+    FT_percentage DECIMAL NOT NULL CHECK (FT_percentage <= 100),
+    REB DECIMAL NOT NULL,
+    AST DECIMAL NOT NULL,
+    TOV DECIMAL NOT NULL,
+    STL DECIMAL NOT NULL,
+    BLK DECIMAL NOT NULL,
+	id_player INTEGER REFERENCES Player(id),
+    id_stat_match INTEGER REFERENCES Stat_Match(id)
+);
+
+CREATE TABLE Stat_Player_Future (
+    id SERIAL PRIMARY KEY,
+    MIN DECIMAL NOT NULL,
+    PTS DECIMAL NOT NULL,
+    FG_percentage DECIMAL NOT NULL CHECK (FG_percentage <= 100),
+    ThreeP_percentage DECIMAL NOT NULL CHECK (ThreeP_percentage <= 100),
+    FT_percentage DECIMAL NOT NULL CHECK (FT_percentage <= 100),
+    REB DECIMAL NOT NULL,
+    AST DECIMAL NOT NULL,
+    TOV DECIMAL NOT NULL,
+    STL DECIMAL NOT NULL,
+    BLK DECIMAL NOT NULL,
+	id_player integer REFERENCES Player(id),
+    id_stat_match INTEGER REFERENCES Stat_Match_Future(id)
+);
+
+
+CREATE TABLE Stat_Match_Team (
+    id SERIAL PRIMARY KEY,
+    PTS DECIMAL NOT NULL,
+    FG_percentage DECIMAL NOT NULL CHECK (FG_percentage <= 100),
+    ThreeP_percentage DECIMAL NOT NULL CHECK (ThreeP_percentage <= 100),
+    FT_percentage DECIMAL NOT NULL CHECK (FT_percentage <= 100),
+    REB DECIMAL NOT NULL,
+    AST DECIMAL NOT NULL,
+    TOV DECIMAL NOT NULL,
+    STL DECIMAL NOT NULL,
+    BLK DECIMAL NOT NULL,
+	id_team INTEGER REFERENCES Team(id),
+    id_stat_match INTEGER REFERENCES Stat_Match(id)
+);
+
+
+
+CREATE TABLE Stat_Team_Future (
+    id SERIAL PRIMARY KEY,
+    PTS DECIMAL NOT NULL,
+    FG_percentage DECIMAL NOT NULL CHECK (FG_percentage <= 100),
+    ThreeP_percentage DECIMAL NOT NULL CHECK (ThreeP_percentage <= 100),
+    FT_percentage DECIMAL NOT NULL CHECK (FT_percentage <= 100),
+    REB DECIMAL NOT NULL,
+    AST DECIMAL NOT NULL,
+    TOV DECIMAL NOT NULL,
+    STL DECIMAL NOT NULL,
+    BLK DECIMAL NOT NULL,
+	id_team INTEGER REFERENCES Team(id),
+    id_stat_match INTEGER REFERENCES Stat_Match_Future(id)
+);
+
+
+-- INSERT INTO Stat_Team_Season(GP, WIN_percentage, PTS, ThreeP_percentage, FT_percentage, REB, AST, TOV, STL, BLK)
+-- VALUES (1,1,1,1,1,1,1,1,1,1), (2,2,2,2,2,2,2,2,2,2);
+
+-- INSERT INTO Team (name, id_stat) VALUES ('Team A', 1), ('Team B', 2);
+
+-- INSERT INTO Player (name, position, number, height, weight, team_id) 
+-- VALUES 
+-- ('John Doe', 'Forward', 10, 6.5, 210, 1),
+-- ('Jane Smith', 'Guard', 23, 5.9, 170, 2);
+
+-- INSERT INTO Stat_Match (winner_name, times_tied, longest_run, lead_changes) 
+-- VALUES ('Team A', 5, 12, 7);
+
+-- INSERT INTO Match (location, date, id_stat, id_team_1, id_team_2) 
+-- VALUES ('Stadium A', '2023-06-15', 1, 1, 2);
+
+-- INSERT INTO Match_Future (location, date, id_stat, id_team_1, id_team_2) 
+-- VALUES ('Future Stadium A', '2025-06-15', NULL, 1, 2);
+
+-- INSERT INTO Stat_Player (MIN, PTS, FG_percentage, ThreeP_percentage, FT_percentage, REB, AST, TOV, STL, BLK, id_player) 
+-- VALUES 
+-- (36.5, 25.4, 45.2, 37.1, 82.5, 10.5, 7.3, 3.1, 2.0, 1.1, 1),
+-- (33.2, 20.1, 41.3, 34.2, 79.3, 8.7, 5.5, 2.8, 1.4, 0.9, 2);
+
+
+-- INSERT INTO Stat_Match_Future (winner_name, times_tied, longest_run, lead_changes) 
+-- VALUES ('Team B', 3, 10, 4);
+
+-- INSERT INTO Stat_Match_Team (PTS, FG_percentage, ThreeP_percentage, FT_percentage, REB, AST, TOV, STL, BLK, id_team, id_stat_match) 
+-- VALUES (120.0, 50.0, 38.5, 85.0, 55.0, 25.0, 15.0, 10.0, 5.0, 1, 1);
+
+-- INSERT INTO Stat_Team_Future (PTS, FG_percentage, ThreeP_percentage, FT_percentage, REB, AST, TOV, STL, BLK, id_team, id_stat_match) 
+-- VALUES (52.0, 50.0, 38.5, 85.0, 55.0, 25.0, 15.0, 10.0, 5.0, 1, 1);
+
+-- insert into stat_player_match(min, pts, fg_percentage, threep_percentage,  FT_percentage, REB, AST, TOV, STL, BLK, id_player, id_stat_match)
+-- values (1,1,1,1,1,1,1,1,1,1,1,1);
+
+-- insert into stat_player_future(min, pts, fg_percentage, threep_percentage,  FT_percentage, REB, AST, TOV, STL, BLK, id_player, id_stat_match)
+-- values (52,1,1,1,1,1,1,1,1,1,1,1);
+

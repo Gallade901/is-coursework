@@ -1,0 +1,25 @@
+DROP INDEX idx_stat_player_match_id_st;
+DROP INDEX idx_stat_match_team_id_st;
+DROP INDEX idx_stat_team_future_id_st;
+DROP INDEX idx_stat_player_future_id_st;
+
+CREATE INDEX idx_stat_player_match_id_st
+ON Stat_Player_Match(id_stat_match);
+
+CREATE INDEX idx_stat_match_team_id_st
+ON Stat_Match_Team(id_stat_match);
+
+CREATE INDEX idx_stat_team_future_id_st
+ON Stat_Team_Future(id_stat_match);
+
+CREATE INDEX idx_stat_player_future_id_st
+ON Stat_Player_Future(id_stat_match);
+
+explain analyze 
+select * from Stat_Player_Match WHERE id_stat_match = 1998; --6.1 ms without index. with index 0.062 ms
+explain analyze
+select * from Stat_Match_Team WHERE id_stat_match = 7890; --0.9 ms without index. with index 0.02 ms
+explain analyze
+select * from Stat_Team_Future WHERE id_stat_match = 7890; --0.9 ms without index. with index 0.02 ms
+explain analyze
+select * from Stat_Player_Future WHERE id_stat_match = 1998; --6.1 ms without index. with index 0.062 ms

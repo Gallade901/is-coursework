@@ -1,0 +1,66 @@
+create or replace procedure generate_nba_stat(countTeam int, countPlayer int, countMatch int) language plpgsql as $$
+begin
+	INSERT INTO Stat_Team_Season(GP, WIN_percentage, PTS, ThreeP_percentage, FT_percentage, REB, AST, TOV, STL, BLK)
+	select floor(random()*100),random()*100,random()*100,random()*100,random()*100,random()*10,random()*10,random()*10,random()*10,random()*10
+	from generate_series(1, countTeam) as ct;
+
+	insert into Team(name, id_stat)
+	select substr(md5(random()::text), 1, 20), sts.id
+	from stat_team_season as sts;
+
+	insert into Player(name, position, number, height, weight, team_id)
+	select substr(md5(random()::text),1,10), substr(md5(random()::text),1,10), floor(random()*100), random()*100, random()*100, Team.id 
+	from generate_series(1, countPlayer) cp, Team;
+		
+	insert into Stat_Player(MIN, PTS, FG_percentage, ThreeP_percentage, FT_percentage, REB, AST, TOV, STL, BLK, id_player)
+	select random()*100,random()*100,random()*100,random()*100,random()*100,random()*10,random()*10,random()*10,random()*10,random()*10, Player.id
+	from Player;
+
+	insert into Stat_Match(winner_name, times_tied, longest_run, lead_changes) 
+	select substr(md5(random()::text),1,10), floor(random()*15),floor(random()*15),floor(random()*15)
+	from generate_series(1, countMatch);
+
+	insert into Match(location, date, id_stat, id_team_1, id_team_2)
+	select substr(md5(random()::text),1,10), CURRENT_DATE + random() * interval '1 year', Stat_Match.id, 1, 2
+	from Stat_Match;
+
+	insert into Stat_Match_Team(PTS, FG_percentage, ThreeP_percentage, FT_percentage, REB, AST, TOV, STL, BLK, id_team, id_stat_match) 
+	select random()*100,random()*100,random()*100,random()*100,random()*10,random()*10,random()*10,random()*10,random()*10, generate_series(1,2), Stat_Match.id
+	from Stat_Match;
+
+	insert into Stat_Player_Match(MIN, PTS, FG_percentage, ThreeP_percentage, FT_percentage, REB, AST, TOV, STL, BLK, id_player, id_stat_match)
+	select random()*100,random()*100,random()*100,random()*100,random()*100,random()*10,random()*10,random()*10,random()*10,random()*10, Player.id, Stat_Match.id
+	from Stat_Match, Player;
+
+	insert into Stat_Match_Future(winner_name, times_tied, longest_run, lead_changes)
+	select substr(md5(random()::text),1,10), floor(random()*15),floor(random()*15),floor(random()*15)
+	from generate_series(1, countMatch);
+
+	insert into Match_Future(location, date, id_stat, id_team_1, id_team_2)
+	select substr(md5(random()::text),1,10), CURRENT_DATE + random() * interval '1 year', Stat_Match_Future.id, 1, 2
+	from Stat_Match_Future;
+
+	insert into Stat_Team_Future(PTS, FG_percentage, ThreeP_percentage, FT_percentage, REB, AST, TOV, STL, BLK, id_team, id_stat_match) 
+	select random()*100,random()*100,random()*100,random()*100,random()*10,random()*10,random()*10,random()*10,random()*10, generate_series(1,2), Stat_Match_Future.id
+	from Stat_Match_Future;
+
+	insert into Stat_Player_Future(MIN, PTS, FG_percentage, ThreeP_percentage, FT_percentage, REB, AST, TOV, STL, BLK, id_player, id_stat_match)
+	select random()*100,random()*100,random()*100,random()*100,random()*100,random()*10,random()*10,random()*10,random()*10,random()*10, Player.id, Stat_Match_Future.id
+	from Stat_Match_Future, Player;
+
+
+		
+end;
+$$;
+
+call generate_nba_stat(30, 15, 2000);
+select * from Stat_team_season;
+select * from Team;
+select * from Player;
+select * from Stat_Player;
+select * from Stat_Match;
+select * from Match;
+select * from Stat_Match_Team;
+select * from Stat_Player_Match;
+select * from Match_Future;
+select * from Stat_Player_future;

@@ -1,0 +1,263 @@
+@startuml
+' avoid problems with angled crows feet
+skinparam linetype ortho
+
+entity Player {
+  id : integer
+  --
+  name : text
+  --
+  position : text
+  --
+  number : integer
+  --
+  height : decimal
+  --
+  weight : decimal
+  --
+  team_id : integer
+}
+
+entity Match {
+  id : integer
+  --
+  location : text
+  --
+  date : date
+  --
+  id_stat : integer
+  --
+  id_team_1 : integer
+  --
+  id_team_2 : integer
+}
+
+entity Team {
+  id : integer
+  --
+  name : text
+  --
+  id_stat : integer
+}
+
+entity Stat_Player {
+  id : integer
+  --
+  MIN : decimal
+  --
+  PTS : decimal
+  --
+  FG% : decimal
+  --
+  3P% : decimal
+  --
+  FT% : decimal
+  --
+  REB : decimal
+  --
+  AST : decimal
+  --
+  TOV : decimal
+  --
+  STL : decimal
+  --
+  BLK : decimal
+  --
+  id_player : integer
+}
+
+
+entity Stat_Player_Match {
+  id : integer
+  --
+  MIN : decimal
+  --
+  PTS : decimal
+  --
+  FG% : decimal
+  --
+  3P% : decimal
+  --
+  FT% : decimal
+  --
+  REB : decimal
+  --
+  AST : decimal
+  --
+  TOV : decimal
+  --
+  STL : decimal
+  --
+  BLK : decimal
+  --
+  id_player : integer
+  --
+  id_stat_match : integer
+}
+
+entity Stat_Match {
+  id : integer
+  --
+  winner's_name : text
+  --
+  times_tied : integer
+  --
+  longest_run : integer
+  --
+  lead_changes : integer
+}
+
+entity Stat_Match_Team {
+  id : integer
+  --
+  PTS : decimal
+  --
+  FG% : decimal
+  --
+  3P% : decimal
+  --
+  FT% : decimal
+  --
+  REB : decimal
+  --
+  AST : decimal
+  --
+  TOV : decimal
+  --
+  STL : decimal
+  --
+  BLK : decimal
+  --
+  id_team : integer
+  --
+  id_stat_match : integer
+}
+
+entity Stat_Match_Future {
+  id : integer
+  --
+  winner's_name : text
+  --
+  times_tied : integer
+  --
+  longest_run : integer
+  --
+  lead_changes : integer
+}
+
+entity Stat_Player_Future {
+  id : integer
+  --
+  MIN : decimal
+  --
+  PTS : decimal
+  --
+  FG% : decimal
+  --
+  3P% : decimal
+  --
+  FT% : decimal
+  --
+  REB : decimal
+  --
+  AST : decimal
+  --
+  TOV : decimal
+  --
+  STL : decimal
+  --
+  BLK : decimal
+  --
+  id_player : integer
+  --
+  id_stat_match : integer
+}
+
+entity Stat_Team_Season {
+  id : integer
+  --
+  GP : decimal
+  --
+  WIN% : decimal
+  --
+  PTS : decimal
+  --
+  3P% : decimal
+  --
+  FT% : decimal
+  --
+  REB : decimal
+  --
+  AST : decimal
+  --
+  TOV : decimal
+  --
+  STL : decimal
+  --
+  BLK : decimal
+}
+
+entity Stat_Team_Future {
+  id : integer
+  --
+  PTS : decimal
+  --
+  FG% : decimal
+  --
+  3P% : decimal
+  --
+  FT% : decimal
+  --
+  REB : decimal
+  --
+  AST : decimal
+  --
+  TOV : decimal
+  --
+  STL : decimal
+  --
+  BLK : decimal
+  --
+  id_team : integer
+  --
+  id_stat_match : integer
+}
+
+class Match_Future {
+  id : integer
+  --
+  location : text
+  --
+  date : date
+  --
+  id_stat : integer
+  --
+  id_team_1 : integer
+  --
+  id_team_2 : integer                                            
+}
+
+left to right direction
+
+Player ||--|| Stat_Player
+Player }--|| Team
+Team }--|{ Match
+Team ||--|| Stat_Team_Season
+Match ||--|| Stat_Match
+Stat_Match ||--{ Stat_Match_Team
+Stat_Match ||--{ Stat_Player_Match
+Match_Future ||--|| Stat_Match_Future
+Stat_Team_Future }--|| Stat_Match_Future
+Stat_Match_Future ||--{ Stat_Player_Future
+Match_Future }|--{ Team
+Stat_Match_Team }|--|| Team
+Stat_Player_Match }|--|| Player
+Stat_Player_Future }|--|| Player
+Stat_Team_Future }|--|| Team
+
+skinparam nodesep 20
+skinparam ranksep 20
+
+
+
+@enduml

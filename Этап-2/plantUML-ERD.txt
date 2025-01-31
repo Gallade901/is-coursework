@@ -1,0 +1,263 @@
+@startuml
+' avoid problems with angled crows feet
+skinparam linetype ortho
+
+entity Player {
+  id 
+  --
+  name 
+  --
+  position
+  --
+  number
+  --
+  height
+  --
+  weight
+  --
+  team_id 
+}
+
+entity Match {
+  id 
+  --
+  location
+  --
+  date 
+  --
+  id_stat 
+  --
+  id_team_1 
+  --
+  id_team_2 
+}
+
+entity Team {
+  id
+  --
+  name
+  --
+  id_stat
+}
+
+entity Stat_Player {
+  id 
+  --
+  MIN
+  --
+  PTS
+  --
+  FG%
+  --
+  3P%
+  --
+  FT%
+  --
+  REB
+  --
+  AST
+  --
+  TOV
+  --
+  STL
+  --
+  BLK
+  --
+  id_player
+}
+
+
+entity Stat_Player_Match {
+  id 
+  --
+  MIN
+  --
+  PTS
+  --
+  FG%
+  --
+  3P%
+  --
+  FT%
+  --
+  REB
+  --
+  AST
+  --
+  TOV
+  --
+  STL
+  --
+  BLK
+  --
+  id_player 
+  --
+  id_stat_match
+}
+
+entity Stat_Match {
+  id
+  --
+  winner's_name
+  --
+  times_tied
+  --
+  longest_run 
+  --
+  lead_changes
+}
+
+entity Stat_Match_Team {
+  id
+  --
+  PTS
+  --
+  FG%
+  --
+  3P%
+  --
+  FT%
+  --
+  REB
+  --
+  AST
+  --
+  TOV
+  --
+  STL
+  --
+  BLK
+  --
+  id_team
+  --
+  id_stat_match
+}
+
+entity Stat_Match_Future {
+  id
+  --
+  winner's_name
+  --
+  times_tied
+  --
+  longest_run 
+  --
+  lead_changes 
+}
+
+entity Stat_Player_Future {
+  id 
+  --
+  MIN
+  --
+  PTS
+  --
+  FG%
+  --
+  3P%
+  --
+  FT%
+  --
+  REB
+  --
+  AST
+  --
+  TOV
+  --
+  STL
+  --
+  BLK
+  --
+  id_player 
+  --
+  id_stat_match
+}
+
+entity Stat_Team_Season {
+  id
+  --
+  GP
+  --
+  WIN%
+  --
+  PTS
+  --
+  3P%
+  --
+  FT%
+  --
+  REB
+  --
+  AST
+  --
+  TOV
+  --
+  STL 
+  --
+  BLK 
+}
+
+entity Stat_Team_Future {
+  id 
+  --
+  PTS 
+  --
+  FG% 
+  --
+  3P%
+  --
+  FT% 
+  --
+  REB
+  --
+  AST 
+  --
+  TOV
+  --
+  STL
+  --
+  BLK
+  --
+  id_team
+  --
+  id_stat_match
+}
+
+class Match_Future {
+  id
+  --
+  location
+  --
+  date
+  --
+  id_stat
+  --
+  id_team_1
+  --
+  id_team_2                                            
+}
+
+left to right direction
+
+Player ||--|| Stat_Player
+Player }--|| Team
+Team }--|{ Match
+Team ||--|| Stat_Team_Season
+Match ||--|| Stat_Match
+Stat_Match ||--{ Stat_Match_Team
+Stat_Match ||--{ Stat_Player_Match
+Match_Future ||--|| Stat_Match_Future
+Stat_Team_Future }--|| Stat_Match_Future
+Stat_Match_Future ||--{ Stat_Player_Future
+Match_Future }|--{ Team
+Stat_Match_Team }|--|| Team
+Stat_Player_Match }|--|| Player
+Stat_Player_Future }|--|| Player
+Stat_Team_Future }|--|| Team
+
+skinparam nodesep 20
+skinparam ranksep 20
+
+
+
+@enduml
