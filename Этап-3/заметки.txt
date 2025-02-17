@@ -1,0 +1,7 @@
+https://cdn.nba.com/static/json/staticData/scheduleLeagueV2_34.json - allMatches
+
+
+
+https://www.nba.com/game/0012400038/box-score
+
+https://www.nba.com/game/uta-vs-sas-0012400038/game-charts
