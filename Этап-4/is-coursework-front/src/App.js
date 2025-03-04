@@ -2,12 +2,16 @@ import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } 
 import './App.css';
 import Matches from "./components/Matches";
 import StatPlayer from "./components/StatPlayer";
+import StatMatch from "./components/StatMatch";
+import StatTeam from "./components/StatTeam";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
         <Route path="/">
             <Route index element={<Matches />} />
-            <Route path="statPlayer" element={<StatPlayer />} />
+            <Route path="statMatches/:id" element={<StatMatch/>} />
+            <Route path="statPlayer/:id" element={<StatPlayer/>} />
+            <Route path="statTeam/:id" element={<StatTeam/>} />
         </Route>
     )
 );

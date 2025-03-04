@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Team {
-    @JsonProperty("teamID")
+    @JsonProperty("teamId")
     private int id;
     @JsonProperty("teamName")
     private String teamName;

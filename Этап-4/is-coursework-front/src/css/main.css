@@ -1,3 +1,75 @@
 body {
-    background-color: #d4ddff;
+    background-color: #d4ffff;
+}
+
+.matches-table-wr {
+    max-width: 100%;
+    overflow-x: auto;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.matches-table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.matches-table th, .flats-table td {
+    border: 1px solid #c0f3ff;
+    padding: 8px;
+}
+
+.matches-table th {
+    background-color: #c0f3ff;
+    text-align: left;
+}
+
+.statMatch {
+    width: 100%;
+    font-size: 1.5em;
+    box-sizing: border-box;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.statMatch span {
+    margin-right: 100px;
+}
+
+.stats-table {
+    width: 100%;
+    margin: 0 auto;
+    border-collapse: collapse;
+}
+
+.teamName {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.statTeam2 {
+    margin-top: 20px;
+}
+
+.stats-table th,
+.stats-table td {
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.header {
+    background-color: #c0f3ff;
+}
+
+.header h1 {
+    transition: color 0.3s ease;
+    cursor: pointer;
+}
+
+.header h1:hover {
+    color: #0066cc;
 }

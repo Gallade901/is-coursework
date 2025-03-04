@@ -12,12 +12,12 @@ import lombok.Setter;
 @Setter
 public class StatTeamSeason {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private float gp;
     private float win;
     private float pts;
-    private float freePoints;
+    private float fg;
+    private float threePoints;
     private float ft;
     private float reb;
     private float ast;
@@ -32,7 +32,7 @@ public class StatTeamSeason {
                 ", gp=" + gp +
                 ", win=" + win +
                 ", pts=" + pts +
-                ", freePoints=" + freePoints +
+                ", threePoints=" + threePoints +
                 ", ft=" + ft +
                 ", reb=" + reb +
                 ", ast=" + ast +

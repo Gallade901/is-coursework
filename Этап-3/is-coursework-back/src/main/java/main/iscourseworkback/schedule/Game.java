@@ -20,5 +20,7 @@ public class Game {
     @JsonProperty("awayTeam")
     private Team awayTeam;
 
+    @JsonProperty("arenaName")
+    private String arenaName;
 
 }

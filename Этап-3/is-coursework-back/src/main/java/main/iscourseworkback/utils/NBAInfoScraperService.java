@@ -1,32 +1,47 @@
 package main.iscourseworkback.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
-import main.iscourseworkback.present.entity.StatTeamSeason;
+import main.iscourseworkback.present.entity.*;
+import main.iscourseworkback.present.repository.TeamRepository;
 import main.iscourseworkback.schedule.Game;
 import main.iscourseworkback.schedule.NbaResponse;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
-
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
 public class NBAInfoScraperService {
     @Value("${base.domain}")
     private String baseDomain;
-    private static final String NBA_API_URL = "https://cdn.nba.com/static/json/staticData/scheduleLeagueV2_34.json";
+    @Autowired
+    private TeamRepository teamRepository;
+    private static final String NBA_API_URL_SCHEDULE = "https://cdn.nba.com/static/json/staticData/scheduleLeagueV2_34.json";
+    private static final String NBA_API_URL_STAT_TEAM_SEASON = "https://stats.nba.com/stats/leaguedashteamstats"; //?Conference=&DateFrom=&DateTo=&Division=&GameScope=&GameSegment=&Height=&ISTRound=&LastNGames=0&LeagueID=00&Location=&MeasureType=Base&Month=0&OpponentTeamID=0&Outcome=&PORound=0&PaceAdjust=N&PerMode=PerGame&Period=0&PlayerExperience=&PlayerPosition=&PlusMinus=N&Rank=N&Season=2024-25&SeasonSegment=&SeasonType=Regular%20Season&ShotClockRange=&StarterBench=&TeamID=0&TwoWay=0&VsConference=&VsDivision=";
+    private static final String NBA_API_URL_STAT_PLAYER_SEASON = "https://stats.nba.com/stats/leaguedashplayerstats";
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
 
@@ -38,7 +53,7 @@ public class NBAInfoScraperService {
     public List<Game> fetchNbaSchedule() {
         try {
             String jsonResponse = restClient.get()
-                    .uri(NBA_API_URL)
+                    .uri(NBA_API_URL_SCHEDULE)
                     .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                     .retrieve()
                     .body(String.class);
@@ -54,76 +69,185 @@ public class NBAInfoScraperService {
         }
     }
 
-    public List<String> fetchLinksForStat() {
 
-        List<String> linksForStatTeam = new ArrayList<>();
+    public List<List<?>> fetchStatTeamsSeason() {
+        List<StatTeamSeason> stats = new ArrayList<>();
+        List<Team> teams = new ArrayList<>();
         try {
-            String NBA_TEAMS_URL = "https://www.nba.com/teams"; //?cal=all&pd=false&region=34
-            Document doc = Jsoup.connect(NBA_TEAMS_URL)
-                    .header("User-Agent", "Mozilla/5.0")
-                    .timeout(10000)
-                    .get();
-            Elements teamFigures = doc.select(".TeamFigure_tf__jA5HW");
-            for (Element figure : teamFigures) {
-                Element statsLink = figure.selectFirst(".TeamFigure_tfLinks__gwWFj a[href*=/stats/team/]");
-                if (statsLink != null) {
-                    String url = statsLink.attr("href");
-                    linksForStatTeam.add(baseDomain + url);
-                }
+            UriComponents uriComponents = getUriComponent(NBA_API_URL_STAT_TEAM_SEASON);
+            String jsonResponse = restClient.get()
+                    .uri(uriComponents.toUri())
+                    .header( "Referer", "https://www.nba.com")
+                    .header("Host", "stats.nba.com")
+                    .header("Accept", "*/*")
+                    .retrieve()
+                    .body(String.class);
+            JSONObject jsonObject = new JSONObject(jsonResponse);
+            String jsonString = jsonObject.toString();
+            JSONArray resultSets = jsonObject.getJSONArray("resultSets");
+            JSONObject first = resultSets.getJSONObject(0);
+            JSONArray rowSet = first.getJSONArray("rowSet");
+            for (int i = 0; i < rowSet.length(); i++) {
+                StatTeamSeason statTeamSeason = new StatTeamSeason();
+                Team team = new Team();
+                JSONArray teamStat = rowSet.getJSONArray(i);
+                statTeamSeason.setId(teamStat.getInt(0));
+                team.setId(teamStat.getInt(0));
+                team.setName(teamStat.getString(1));
+                team.setIdStat(statTeamSeason);
+                statTeamSeason.setGp(teamStat.getInt(2));
+                statTeamSeason.setWin(teamStat.getFloat(5));
+                statTeamSeason.setPts(teamStat.getFloat(26));
+                statTeamSeason.setFg(teamStat.getFloat(9));
+                statTeamSeason.setThreePoints(teamStat.getFloat(12));
+                statTeamSeason.setFt(teamStat.getFloat(15));
+                statTeamSeason.setReb(teamStat.getFloat(18));
+                statTeamSeason.setAst(teamStat.getFloat(19));
+                statTeamSeason.setTov(teamStat.getFloat(20));
+                statTeamSeason.setStl(teamStat.getFloat(21));
+                statTeamSeason.setBlk(teamStat.getFloat(22));
+                stats.add(statTeamSeason);
+                teams.add(team);
             }
-            return linksForStatTeam;
-        } catch (IOException e) {
-            log.error("Ошибка при получении данных с NBA.com: ", e);
-            throw new RuntimeException("Не удалось получить расписание игр", e);
+            List<List<?>> lists = new ArrayList<>();
+            lists.add(stats);
+            lists.add(teams);
+            return lists;
+        } catch (Exception e) {
+            log.error("Ошибка при получении данных: {}", e.getMessage(), e);
+            return Collections.emptyList();
         }
     }
 
-    public List<StatTeamSeason> fetchStatTeamsSeason() {
-        List<StatTeamSeason> stats = new ArrayList<>();
-        List<String> links = fetchLinksForStat();
+    public List<List<?>> fetchStatPlayerSeason() {
+        List<StatPlayer> stats = new ArrayList<>();
+        List<Player> players = new ArrayList<>();
         try {
-            for (String link : links) {
-                link = link + "/traditional";
-                Document doc = Jsoup.connect(link)
-                        .header("User-Agent", "Mozilla/5.0")
-                        .timeout(10000)
-                        .get();
-                System.out.println(doc);
-                Element statSeasonRow = doc.selectFirst("table.Crom_table__p1iZz tbody.Crom_body__UYOcU tr");
-                System.out.println(statSeasonRow);
-                StatTeamSeason statTeamSeason = new StatTeamSeason();
-                if (statSeasonRow != null) {
-                    Elements cells = statSeasonRow.select("td");
-                    statTeamSeason.setGp(Float.parseFloat(cells.get(1).text()));
-                    statTeamSeason.setPts(Float.parseFloat(cells.get(3).text()));
-                    statTeamSeason.setWin(Float.parseFloat(cells.get(4).text()));
-                    statTeamSeason.setFt(Float.parseFloat(cells.get(15).text()));
-                    statTeamSeason.setFreePoints(Float.parseFloat(
-                            cells.get(14).selectFirst("a").text()
-                    ));
-                    statTeamSeason.setReb(Float.parseFloat(
-                            cells.get(21).selectFirst("a").text()
-                    ));
-                    statTeamSeason.setAst(Float.parseFloat(
-                            cells.get(24).selectFirst("a").text()
-                    ));
-                    statTeamSeason.setTov(Float.parseFloat(
-                            cells.get(25).selectFirst("a").text()
-                    ));
-                    statTeamSeason.setStl(Float.parseFloat(
-                            cells.get(26).selectFirst("a").text()
-                    ));
-                    statTeamSeason.setBlk(Float.parseFloat(
-                            cells.get(27).selectFirst("a").text()
-                    ));
+            UriComponents uriComponents = getUriComponent(NBA_API_URL_STAT_PLAYER_SEASON);
+            String jsonResponse = restClient.get()
+                    .uri(uriComponents.toUri())
+                    .header( "Referer", "https://www.nba.com")
+                    .header("Host", "stats.nba.com")
+                    .header("Accept", "*/*")
+                    .retrieve()
+                    .body(String.class);
+            JSONObject jsonObject = new JSONObject(jsonResponse);
+            String jsonString = jsonObject.toString();
+            JSONArray resultSets = jsonObject.getJSONArray("resultSets");
+            JSONObject first = resultSets.getJSONObject(0);
+            JSONArray rowSet = first.getJSONArray("rowSet");
+            for (int i = 0; i < rowSet.length(); i++) {
+                StatPlayer statPlayer = new StatPlayer();
+                Player player = new Player();
+                JSONArray playerStat = rowSet.getJSONArray(i);
+                statPlayer.setId(playerStat.getInt(0));
+                player.setId(playerStat.getInt(0));
+                player.setName(playerStat.getString(1));
+                int team_id = playerStat.getInt(3);
+                Optional<Team> team2 = teamRepository.findById(team_id);
+                player.setIdTeam(team2.orElseThrow(() ->
+                        new EntityNotFoundException("Team not found with id: " + team_id)));
 
-                }
-                stats.add(statTeamSeason);
+                statPlayer.setGp(playerStat.getFloat(6));
+                statPlayer.setMin(playerStat.getFloat(10));
+                statPlayer.setPts(playerStat.getFloat(30));
+                statPlayer.setFg(playerStat.getFloat(13));
+                statPlayer.setThreePoints(playerStat.getFloat(16));
+                statPlayer.setFt(playerStat.getFloat(19));
+                statPlayer.setReb(playerStat.getFloat(22));
+                statPlayer.setAst(playerStat.getFloat(23));
+                statPlayer.setTov(playerStat.getFloat(24));
+                statPlayer.setStl(playerStat.getFloat(25));
+                statPlayer.setBlk(playerStat.getFloat(26));
+                stats.add(statPlayer);
+                players.add(player);
             }
-            return stats;
-        } catch (IOException e) {
-            System.err.println("Ошибка при получении данных: " + e.getMessage());
+            List<List<?>> lists = new ArrayList<>();
+            lists.add(stats);
+            lists.add(players);
+            return lists;
+        } catch (Exception e) {
+            log.error("Ошибка при получении данных: {}", e.getMessage(), e);
             return Collections.emptyList();
+        }
+    }
+
+    public UriComponents getUriComponent(String url) {
+        UriComponents uriComponents = UriComponentsBuilder
+                .fromUriString(url)
+                .queryParam("Conference", "")
+                .queryParam("DateFrom", "")
+                .queryParam("DateTo", "")
+                .queryParam("Division", "")
+                .queryParam("GameScope", "")
+                .queryParam("GameSegment", "")
+                .queryParam("Height", "")
+                .queryParam("ISTRound", "")
+                .queryParam("LastNGames", "0")
+                .queryParam("LeagueID", "00")
+                .queryParam("Location", "")
+                .queryParam("MeasureType", "Base")
+                .queryParam("Month", "0")
+                .queryParam("OpponentTeamID", "0")
+                .queryParam("Outcome", "")
+                .queryParam("PORound", "0")
+                .queryParam("PaceAdjust", "N")
+                .queryParam("PerMode", "PerGame")
+                .queryParam("Period", "0")
+                .queryParam("PlayerExperience", "")
+                .queryParam("PlayerPosition", "")
+                .queryParam("PlusMinus", "N")
+                .queryParam("Rank", "N")
+                .queryParam("Season", "2024-25")
+                .queryParam("SeasonSegment", "")
+                .queryParam("SeasonType", "Regular Season")
+                .queryParam("ShotClockRange", "")
+                .queryParam("StarterBench", "")
+                .queryParam("TeamID", "0")
+                .queryParam("TwoWay", "0")
+                .queryParam("VsConference", "")
+                .queryParam("VsDivision", "")
+                .encode()
+                .build();
+        return uriComponents;
+    }
+
+    public void fetchStatMatch() {
+        String filePath = "C:\\Users\\MSI\\Desktop\\отчеты\\ИС\\Курсач\\Этап-3\\is-coursework-back\\MatchesStat.txt";
+        String jsonContent = null;
+        try {
+            jsonContent = new String(Files.readAllBytes(Paths.get(filePath)));
+            JSONObject jsonObject = new JSONObject(jsonContent);
+            JSONArray jsonArray = jsonObject.getJSONArray("s");
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject game = jsonArray.getJSONObject(i);
+                if (game.getJSONObject("postGameCharts").getJSONObject("awayTeam").getJSONObject("statistics").getInt("points") == 0) {
+                    String id = game.getString("gameId");
+                    Document doc = Jsoup.connect("https://www.nba.com/game/" + id + "/box-score").get();
+                    Element scriptTag = doc.getElementById("__NEXT_DATA__");
+                    if (scriptTag == null) {
+                        throw new RuntimeException("Script тег не найден");
+                    }
+                    JSONObject obj = new JSONObject(scriptTag.data());
+                    JSONObject gameObj = obj.getJSONObject("props").getJSONObject("pageProps").getJSONObject("game");
+                    JSONObject homeTeam = gameObj.getJSONObject("homeTeam");
+                    JSONObject awayTeam = gameObj.getJSONObject("awayTeam");
+                    JSONObject postGameCharts = gameObj.getJSONObject("postgameCharts");
+                    if (postGameCharts.getJSONObject("awayTeam").getJSONObject("statistics").getInt("playerPtsLeaderId") == 0) {
+                        break;
+                    }
+                    JSONObject result = new JSONObject();
+                    result.put("gameId", id);
+                    result.put("homeTeam", homeTeam);
+                    result.put("awayTeam", awayTeam);
+                    result.put("postGameCharts", postGameCharts);
+                    jsonArray.put(i, result);
+                    System.out.println(i);
+                }
+            }
+            Files.writeString(Paths.get(filePath), jsonObject.toString(4));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

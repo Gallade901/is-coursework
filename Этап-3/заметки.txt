@@ -5,3 +5,10 @@ https://cdn.nba.com/static/json/staticData/scheduleLeagueV2_34.json - allMatches
 https://www.nba.com/game/0012400038/box-score
 
 https://www.nba.com/game/uta-vs-sas-0012400038/game-charts
+
+StatTeamSeason - json -
+https://stats.nba.com/stats/leaguedashteamstats?Conference=&DateFrom=&DateTo=&Division=&GameScope=&GameSegment=&Height=&ISTRound=&LastNGames=0&LeagueID=00&Location=&MeasureType=Base&Month=0&OpponentTeamID=0&Outcome=&PORound=0&PaceAdjust=N&PerMode=PerGame&Period=0&PlayerExperience=&PlayerPosition=&PlusMinus=N&Rank=N&Season=2024-25&SeasonSegment=&SeasonType=Regular%20Season&ShotClockRange=&StarterBench=&TeamID=0&TwoWay=0&VsConference=&VsDivision=
+header Referer!
+
+
+https://www.nba.com/game/bos-vs-den-0012400001/box-score - statMatch and Players in match
