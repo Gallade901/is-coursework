@@ -38,7 +38,7 @@ const StatTeam = () => {
                     <th>BLK</th>
                     <th>FG%</th>
                     <th>FT%</th>
-                    <th>MIN</th>
+                    <th>WIN</th>
                     <th>PTS</th>
                     <th>REB</th>
                     <th>STL</th>
@@ -53,7 +53,7 @@ const StatTeam = () => {
                     <td>{statTeam?.statTeamSeason?.blk}</td>
                     <td>{(statTeam?.statTeamSeason?.fg * 100).toFixed(1)}%</td>
                     <td>{(statTeam?.statTeamSeason?.ft * 100).toFixed(1)}%</td>
-                    <td>{statTeam?.statTeamSeason?.win}</td>
+                    <td>{(statTeam?.statTeamSeason?.win * 100).toFixed(1)}%</td>
                     <td>{statTeam?.statTeamSeason?.pts}</td>
                     <td>{statTeam?.statTeamSeason?.reb}</td>
                     <td>{statTeam?.statTeamSeason?.stl}</td>

@@ -1,6 +1,7 @@
 package main.iscourseworkback.utils;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import main.iscourseworkback.future.entity.StatMatchFuture;
 import main.iscourseworkback.future.entity.StatPlayerFuture;
 import main.iscourseworkback.future.entity.StatTeamFuture;
@@ -8,6 +9,8 @@ import main.iscourseworkback.present.entity.*;
 import main.iscourseworkback.present.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -32,7 +35,6 @@ public class AnalysisStat {
     private TeamRepository teamRepository;
     @Autowired
     private StatPlayerMatchRepository statPlayerMatchRepository;
-
     public StatMatchFuture analyzeStatMatch(String teamName1, String teamName2) {
         Team team1 = teamRepository.findByName(teamName1);
         Team team2 = teamRepository.findByName(teamName2);

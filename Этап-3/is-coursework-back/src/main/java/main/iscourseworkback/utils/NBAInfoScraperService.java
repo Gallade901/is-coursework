@@ -24,8 +24,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -212,12 +215,23 @@ public class NBAInfoScraperService {
         return uriComponents;
     }
 
-    public void fetchStatMatch() {
-        String filePath = "C:\\Users\\MSI\\Desktop\\отчеты\\ИС\\Курсач\\Этап-3\\is-coursework-back\\MatchesStat.txt";
+    public String fetchStatMatch() { //String
+//        String filePath = "MatchesStat.txt";
+//        String jsonContent = null;
+//        try {
+//            jsonContent = new String(Files.readAllBytes(Paths.get(filePath)));
+//            JSONObject jsonObject = new JSONObject(jsonContent);
+        String filePath = "/MatchesStat.txt"; // Указываем путь относительно папки resources
         String jsonContent = null;
-        try {
-            jsonContent = new String(Files.readAllBytes(Paths.get(filePath)));
+
+        try (InputStream inputStream = getClass().getResourceAsStream(filePath)) {
+            if (inputStream == null) {
+                throw new RuntimeException("Файл не найден: " + filePath);
+            }
+
+            jsonContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
             JSONObject jsonObject = new JSONObject(jsonContent);
+            //
             JSONArray jsonArray = jsonObject.getJSONArray("s");
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject game = jsonArray.getJSONObject(i);
@@ -245,7 +259,11 @@ public class NBAInfoScraperService {
                     System.out.println(i);
                 }
             }
-            Files.writeString(Paths.get(filePath), jsonObject.toString(4));
+//            Files.writeString(Paths.get(filePath), jsonObject.toString(4));
+            Path tempFile = Files.createTempFile("MatchesStat", ".txt");
+            Files.writeString(tempFile, jsonObject.toString(4), StandardCharsets.UTF_8);
+            System.out.println("Файл записан во временный путь: " + tempFile.toAbsolutePath());
+            return tempFile.toAbsolutePath().toString();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

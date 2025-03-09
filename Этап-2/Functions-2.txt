@@ -39,7 +39,7 @@ BEGIN
 	RETURN QUERY
 	SELECT * FROM Stat_Team_Season WHERE id = id_st;   
 END;
-$$ LANGUAGE plpgsql; 
+$$ LANGUAGE plpgsql; к
 
 select get_stat_team_season(1);
 

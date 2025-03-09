@@ -28,14 +28,14 @@ public class LoadMatches {
     private TeamRepository teamRepository;
     @Autowired
     private PlayerRepository playerRepository;
-    public List<List<?>> getMatches() {
+    public List<List<?>> getMatches(String filePath){
         List<List<?>> result = new ArrayList<>();
         List<StatMatch> statMatches = new ArrayList<>();
         List<Match> matches = new ArrayList<>();
         List<StatMatchTeam> statMatchTeams = new ArrayList<>();
         List<StatPlayerMatch> statPlayerMatches = new ArrayList<>();
         try {
-            String filePath = "C:\\Users\\MSI\\Desktop\\отчеты\\ИС\\Курсач\\Этап-3\\is-coursework-back\\MatchesStat.txt";
+//            String filePath = "MatchesStat.txt";
             String jsonContent = new String(Files.readAllBytes(Paths.get(filePath)));
             JSONObject jsonObject = new JSONObject(jsonContent);
             JSONArray jsonArray = jsonObject.getJSONArray("s");
@@ -154,7 +154,7 @@ public class LoadMatches {
         for (int i = 0; i < json.length(); i++) {
             JSONObject player = json.getJSONObject(i);
             JSONObject statistics = player.getJSONObject("statistics");
-            if (statistics.getString("minutes").isEmpty()) continue;
+            if (statistics.getString("minutes").isEmpty() || statistics.getString("minutes").equals("PT00M00.00S")) continue;
             StatPlayerMatch statPlayerMatch = new StatPlayerMatch();
             statPlayerMatch.setMin(statistics.getString("minutes"));
             statPlayerMatch.setPts(statistics.getInt("points"));

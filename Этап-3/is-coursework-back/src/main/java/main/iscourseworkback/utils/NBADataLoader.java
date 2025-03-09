@@ -16,6 +16,10 @@ import main.iscourseworkback.present.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -50,8 +54,10 @@ public class NBADataLoader {
     @PostConstruct
     public void loadData() {
         try {
-            nbaInfoScraperService.fetchStatMatch();
+            String path = nbaInfoScraperService.fetchStatMatch();
+            log.info("fetchMatch");
             List<?> stat = nbaInfoScraperService.fetchStatTeamsSeason();
+            log.info("fetchStatTeamsSeason");
             List<StatTeamSeason> statTeamSeasons = (List<StatTeamSeason>) stat.get(0);
             List<Team> teams = (List<Team>) stat.get(1);
             for (int i = 0; i < teams.size(); i++) {
@@ -62,8 +68,9 @@ public class NBADataLoader {
                 team.setIdStat(statTeamSeason);
                 teamRepository.save(team);
             }
-            log.info("Get Stat Team");
+            log.info("Save Stat Team");
             List<?> statP = nbaInfoScraperService.fetchStatPlayerSeason();
+            log.info("fetchStatPlayerSeason");
             List<StatPlayer> statPlayersSeasons = (List<StatPlayer>) statP.get(0);
             List<Player> players = (List<Player>) statP.get(1);
             for (int i = 0; i < statPlayersSeasons.size(); i++) {
@@ -73,8 +80,8 @@ public class NBADataLoader {
                 statPlayer.setPlayer(player);
                 statPlayerRepository.save(statPlayer);
             }
-            log.info("Get Stat Player");
-            List<List<?>> listMatches = loadMatches.getMatches();
+            log.info("Save Stat Player");
+            List<List<?>> listMatches = loadMatches.getMatches(path);
             List<StatMatch> statMatches = (List<StatMatch>) listMatches.get(0);
             List<Match> matches = (List<Match>) listMatches.get(1);
             List<StatMatchTeam> statMatchTeams = (List<StatMatchTeam>) listMatches.get(2);
@@ -124,7 +131,7 @@ public class NBADataLoader {
             }
 
         } catch (RuntimeException e) {
-            System.err.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 
